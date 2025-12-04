@@ -1,0 +1,8 @@
+{
+  "name": "Copy of NexStock AI Inventory",
+  "description": "A modern, AI-powered inventory management system with real-time tracking, predictive analytics, and smart voice assistance.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
