@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, Package, Warehouse, FileBarChart, Settings, 
-  Menu, Bell, Moon, Sun, User, LogOut, Search, X
+  Menu, Bell, Moon, Sun, User, LogOut, Search, ChevronRight, Command
 } from 'lucide-react';
 import { ViewState } from '../types';
 
@@ -25,120 +25,129 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onNavigate, toggl
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F3F4F6] dark:bg-[#0f172a] text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300">
+    <div className="flex h-screen overflow-hidden bg-gray-50/50 dark:bg-[#0B1120] text-gray-900 dark:text-gray-100 font-sans">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - Floating Style */}
-      <aside className={`fixed inset-y-4 left-4 z-50 w-72 bg-slate-900 dark:bg-slate-800 text-white rounded-3xl shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-[calc(100vh-2rem)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-[110%]'}`}>
+      {/* Professional Sidebar */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#0F172A] border-r border-gray-200 dark:border-gray-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         
-        {/* Brand */}
-        <div className="h-24 flex items-center px-8 border-b border-white/10">
-          <div className="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-indigo-500/30">
-             <span className="text-white font-bold text-xl">N</span>
+        {/* Brand Area */}
+        <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
+              N
+            </div>
+            <span className="font-bold text-xl tracking-tight text-gray-900 dark:text-white">NexStock</span>
           </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">NexStock</h1>
-            <p className="text-xs text-slate-400 font-medium">AI Inventory</p>
-          </div>
-          <button 
-            className="ml-auto lg:hidden text-slate-400 hover:text-white"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X size={20} />
-          </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto custom-scrollbar">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeView === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  onNavigate(item.id);
-                  setSidebarOpen(false);
-                }}
-                className={`w-full flex items-center px-5 py-4 text-sm font-medium rounded-2xl transition-all duration-300 group ${
-                  isActive 
-                    ? 'bg-indigo-600 shadow-lg shadow-indigo-900/50 text-white' 
-                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                <Icon size={22} className={`mr-4 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-white'}`} />
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
+        <div className="flex-1 overflow-y-auto py-6 px-3">
+          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3">Main Menu</div>
+          <nav className="space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeView === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onNavigate(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative ${
+                    isActive 
+                      ? 'bg-gray-100 dark:bg-gray-800 text-indigo-600 dark:text-indigo-400' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-indigo-600 rounded-r-full" />}
+                  <Icon size={18} className={`mr-3 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`} />
+                  {item.label}
+                  {isActive && <ChevronRight size={14} className="ml-auto opacity-50" />}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
 
-        {/* User Profile */}
-        <div className="p-4 mt-auto">
-          <div className="flex items-center p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-white font-bold shadow-md">
+        {/* User Profile Footer */}
+        <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 text-white flex items-center justify-center text-sm font-medium">
               JD
             </div>
-            <div className="ml-3 overflow-hidden">
-              <p className="text-sm font-semibold text-white truncate">John Doe</p>
-              <p className="text-xs text-slate-400 truncate">Manager</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">John Doe</p>
+              <p className="text-xs text-gray-500 truncate">john@nexstock.ai</p>
             </div>
-            <button className="ml-auto text-slate-400 hover:text-white transition-colors">
-              <LogOut size={18} />
-            </button>
+            <LogOut size={16} className="text-gray-400" />
           </div>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
+      {/* Main Layout */}
+      <div className="flex-1 flex flex-col min-w-0">
         
-        {/* Floating Header */}
-        <header className="px-4 lg:px-8 pt-4 pb-2">
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/20 dark:border-slate-700 h-20 flex items-center justify-between px-6">
-            <div className="flex items-center gap-4">
-              <button 
-                className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <Menu size={24} />
-              </button>
-              
-              <div className="hidden md:flex relative group">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
-                <input 
-                  type="text" 
-                  placeholder="Type to search..." 
-                  className="w-80 pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all dark:text-white"
-                />
+        {/* Top Header */}
+        <header className="h-16 bg-white dark:bg-[#0F172A] border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
+          <div className="flex items-center gap-4">
+            <button 
+              className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu size={20} />
+            </button>
+            
+            {/* Breadcrumbs or Context Title could go here */}
+            <div className="hidden md:flex items-center text-sm text-gray-500">
+               <span className="hover:text-gray-900 cursor-pointer">App</span>
+               <ChevronRight size={14} className="mx-2" />
+               <span className="font-medium text-gray-900 dark:text-white capitalize">{activeView.toLowerCase()}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Search Bar */}
+            <div className="hidden md:flex items-center relative">
+              <Search size={16} className="absolute left-3 text-gray-400" />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className="pl-9 pr-4 py-1.5 w-64 bg-gray-100 dark:bg-gray-800 border-none rounded-md text-sm focus:ring-2 focus:ring-indigo-500/50 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-gray-200"
+              />
+              <div className="absolute right-2 flex items-center gap-1">
+                 <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded">
+                   <Command size={10} /> K
+                 </kbd>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={toggleTheme}
-                className="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-xl transition-all"
-              >
-                {isDark ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
-              
-              <button className="relative w-10 h-10 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-xl transition-all">
-                <Bell size={20} />
-                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-800"></span>
-              </button>
-            </div>
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-2"></div>
+
+            <button 
+              onClick={toggleTheme}
+              className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            
+            <button className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md relative">
+              <Bell size={18} />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-900"></span>
+            </button>
           </div>
         </header>
 
-        {/* Content Body */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8 custom-scrollbar">
-          <div className="max-w-7xl mx-auto space-y-8 pb-20">
+        {/* Scrollable Content */}
+        <main className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-[#0B1120] p-4 lg:p-8">
+          <div className="max-w-screen-2xl mx-auto space-y-6">
             {children}
           </div>
         </main>

@@ -4,7 +4,7 @@ import {
   PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { SaleData, CategoryData, Product } from '../types';
-import { TrendingUp, AlertTriangle, Package, DollarSign, ArrowUpRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, ArrowRight, DollarSign, Package, AlertCircle } from 'lucide-react';
 
 interface DashboardProps {
   salesData: SaleData[];
@@ -17,169 +17,174 @@ const Dashboard: React.FC<DashboardProps> = ({ salesData, categoryData, products
   const lowStockCount = products.filter(p => p.stock < p.minStock).length;
   const totalValue = products.reduce((acc, p) => acc + (p.price * p.stock), 0);
 
-  const cardStyle = "relative overflow-hidden bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow duration-300";
+  // Helper for KPI Cards
+  const KpiCard = ({ title, value, trend, trendUp, icon: Icon, colorClass }: any) => (
+    <div className="bg-white dark:bg-[#1E293B] p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-2 tracking-tight">{value}</h3>
+        </div>
+        <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10`}>
+          <Icon size={20} className={colorClass.replace('bg-', 'text-')} />
+        </div>
+      </div>
+      <div className="mt-4 flex items-center text-sm">
+        <span className={`flex items-center font-medium ${trendUp ? 'text-green-600' : 'text-red-600'}`}>
+          {trendUp ? <TrendingUp size={16} className="mr-1" /> : <TrendingDown size={16} className="mr-1" />}
+          {trend}
+        </span>
+        <span className="text-gray-400 ml-2">vs last month</span>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h2 className="text-3xl font-bold text-slate-800 dark:text-white">Dashboard Overview</h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Real-time insights into your inventory performance.</p>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Revenue */}
-        <div className={`${cardStyle} group`}>
-          <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-            <DollarSign size={80} className="text-indigo-600 dark:text-indigo-400" />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400">
-                <DollarSign size={20} />
-              </div>
-              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Revenue</p>
-            </div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">$24,500</h3>
-            <div className="flex items-center mt-3 text-sm">
-              <span className="flex items-center text-emerald-500 font-medium bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-lg">
-                <TrendingUp size={14} className="mr-1" /> +12%
-              </span>
-              <span className="text-slate-400 ml-2">vs last week</span>
-            </div>
-          </div>
+    <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Overview of your inventory performance.</p>
         </div>
-
-        {/* Stock */}
-        <div className={`${cardStyle} group`}>
-          <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Package size={80} className="text-blue-600 dark:text-blue-400" />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">
-                <Package size={20} />
-              </div>
-              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Stock</p>
-            </div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{totalStock}</h3>
-            <div className="flex items-center mt-3 text-sm">
-              <span className="flex items-center text-blue-500 font-medium bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-lg">
-                <ArrowUpRight size={14} className="mr-1" /> Active
-              </span>
-              <span className="text-slate-400 ml-2">Across 3 hubs</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Value */}
-        <div className={`${cardStyle} group`}>
-          <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-            <DollarSign size={80} className="text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl text-emerald-600 dark:text-emerald-400">
-                <DollarSign size={20} />
-              </div>
-              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Inventory Value</p>
-            </div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">${(totalValue / 1000).toFixed(1)}k</h3>
-            <div className="flex items-center mt-3 text-sm">
-              <span className="text-slate-400">Current assets value</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Alerts */}
-        <div className={`${cardStyle} group border-red-100 dark:border-red-900/30`}>
-          <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-            <AlertTriangle size={80} className="text-red-600 dark:text-red-400" />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-xl text-red-600 dark:text-red-400">
-                <AlertTriangle size={20} />
-              </div>
-              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Low Stock</p>
-            </div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{lowStockCount}</h3>
-            <div className="flex items-center mt-3 text-sm">
-              <span className="flex items-center text-red-500 font-medium bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-lg">
-                Action needed
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sales Trend */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-xl font-bold text-slate-800 dark:text-white">Sales Analytics</h3>
-            <select className="bg-slate-50 dark:bg-slate-700 border-none text-sm rounded-lg px-3 py-1 text-slate-600 dark:text-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
-              <option>Last 7 Days</option>
-              <option>Last Month</option>
+        <div className="flex gap-2">
+            <select className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500">
+                <option>All Warehouses</option>
+                <option>New York</option>
+                <option>California</option>
             </select>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                Download Report
+            </button>
+        </div>
+      </div>
+
+      {/* KPI Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KpiCard 
+          title="Total Revenue" 
+          value="$24,500" 
+          trend="12.5%" 
+          trendUp={true} 
+          icon={DollarSign} 
+          colorClass="bg-indigo-500 text-indigo-600" 
+        />
+        <KpiCard 
+          title="Total Stock" 
+          value={totalStock.toLocaleString()} 
+          trend="2.1%" 
+          trendUp={true} 
+          icon={Package} 
+          colorClass="bg-blue-500 text-blue-600" 
+        />
+        <KpiCard 
+          title="Inventory Value" 
+          value={`$${(totalValue / 1000).toFixed(1)}k`} 
+          trend="0.5%" 
+          trendUp={false} 
+          icon={DollarSign} 
+          colorClass="bg-emerald-500 text-emerald-600" 
+        />
+        <KpiCard 
+          title="Low Stock Items" 
+          value={lowStockCount} 
+          trend="5 Items" 
+          trendUp={false} 
+          icon={AlertCircle} 
+          colorClass="bg-red-500 text-red-600" 
+        />
+      </div>
+
+      {/* Charts Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Main Chart */}
+        <div className="lg:col-span-2 bg-white dark:bg-[#1E293B] rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">Revenue Analytics</h3>
+            <div className="flex gap-2">
+                {['1W', '1M', '3M', '1Y'].map((period) => (
+                    <button key={period} className={`text-xs font-medium px-2 py-1 rounded ${period === '1M' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900'}`}>
+                        {period}
+                    </button>
+                ))}
+            </div>
           </div>
-          <div className="h-[350px] w-full">
+          <div className="h-[300px] w-full min-w-0">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={salesData}>
+              <AreaChart data={salesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
                     <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
-                  itemStyle={{ color: '#fff' }}
-                  cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '5 5' }}
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
+                <XAxis 
+                    dataKey="date" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: '#64748B', fontSize: 12}} 
+                    dy={10} 
                 />
-                <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorRev)" />
+                <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: '#64748B', fontSize: 12}} 
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1E293B', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
+                  itemStyle={{ color: '#fff' }}
+                />
+                <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Category Distribution */}
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700">
-          <h3 className="text-xl font-bold mb-8 text-slate-800 dark:text-white">Stock Distribution</h3>
-          <div className="h-[300px] w-full relative">
-            <ResponsiveContainer width="100%" height="100%">
+        {/* Donut Chart */}
+        <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 flex flex-col">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-6">Stock Distribution</h3>
+          <div className="flex-1 flex items-center justify-center relative min-w-0">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center">
+                    <span className="block text-2xl font-bold text-gray-900 dark:text-white">{totalStock}</span>
+                    <span className="text-xs text-gray-500">Total Units</span>
+                </div>
+            </div>
+            <ResponsiveContainer width="100%" height={240}>
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={70}
-                  outerRadius={90}
-                  paddingAngle={5}
+                  innerRadius={65}
+                  outerRadius={85}
+                  paddingAngle={4}
                   dataKey="value"
-                  cornerRadius={6}
+                  stroke="none"
                 >
                   {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: '24px' }} iconType="circle" />
-                <Tooltip 
-                   contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
-                />
+                <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[80%] text-center pointer-events-none">
-              <span className="text-3xl font-bold text-slate-800 dark:text-white">100%</span>
-              <p className="text-xs text-slate-400 uppercase tracking-wide">Total</p>
-            </div>
+          </div>
+          <div className="mt-4 space-y-2">
+              {categoryData.slice(0,3).map((cat, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full" style={{backgroundColor: cat.color}}></div>
+                          <span className="text-gray-600 dark:text-gray-300">{cat.name}</span>
+                      </div>
+                      <span className="font-medium text-gray-900 dark:text-white">{Math.round((cat.value / totalStock) * 100)}%</span>
+                  </div>
+              ))}
           </div>
         </div>
+
       </div>
     </div>
   );

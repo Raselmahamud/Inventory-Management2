@@ -4,15 +4,28 @@ import Dashboard from './components/Dashboard';
 import Inventory from './components/Inventory';
 import WarehouseViz from './components/WarehouseViz';
 import AIAssistant from './components/AIAssistant';
-import { ViewState, Product, Warehouse } from './types';
+import AddProductModal from './components/AddProductModal';
+import SettingsView from './components/SettingsView';
+import { ViewState, Product } from './types';
 import { MOCK_PRODUCTS, MOCK_SALES_DATA, MOCK_CATEGORY_DATA, MOCK_WAREHOUSES } from './constants';
-import { MapPin, FileBarChart, Thermometer, Box, ChevronRight, ArrowLeft } from 'lucide-react';
+import { 
+  MapPin, 
+  Thermometer, 
+  Box, 
+  ChevronRight, 
+  ArrowLeft, 
+  Settings, 
+  Truck, 
+  ClipboardCheck, 
+  Layers 
+} from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewState>(ViewState.DASHBOARD);
   const [isDark, setIsDark] = useState(false);
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [highlightedProductIds, setHighlightedProductIds] = useState<string[]>([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
   // Warehouse View State
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(null);
@@ -37,18 +50,14 @@ const App: React.FC = () => {
     alert(`Edit functionality for ${product.name} would open here.`);
   };
 
-  const handleAddProduct = () => {
+  const handleAddProductClick = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleSaveProduct = (productData: Omit<Product, 'id'>) => {
     const newProduct: Product = {
+      ...productData,
       id: Math.random().toString(36).substr(2, 9),
-      name: 'New Product',
-      category: 'Uncategorized',
-      sku: 'NEW-001',
-      price: 0,
-      stock: 0,
-      minStock: 0,
-      supplier: 'N/A',
-      location: 'N/A',
-      warehouseId: 'WH-NY'
     };
     setProducts(prev => [newProduct, ...prev]);
   };
@@ -77,60 +86,144 @@ const App: React.FC = () => {
     if (selectedWarehouseId) {
       const warehouse = MOCK_WAREHOUSES.find(w => w.id === selectedWarehouseId);
       const warehouseProducts = products.filter(p => p.warehouseId === selectedWarehouseId);
+      const totalValue = warehouseProducts.reduce((acc, p) => acc + (p.price * p.stock), 0);
+      const lowStockCount = warehouseProducts.filter(p => p.stock < p.minStock).length;
+
+      // Mock Zones for the Floor Plan
+      const zones = ['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C1', 'C2', 'C3', 'C4'];
 
       return (
-        <div className="space-y-6">
-          <div className="flex items-center gap-4 mb-6">
-            <button 
-              onClick={() => setSelectedWarehouseId(null)}
-              className="p-2 rounded-full hover:bg-white dark:hover:bg-slate-700 transition-colors"
-            >
-              <ArrowLeft size={24} className="text-slate-600 dark:text-slate-300" />
-            </button>
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{warehouse?.name} Inventory</h2>
-              <p className="text-slate-500">Managing {warehouseProducts.length} items</p>
+        <div className="space-y-6 animate-in slide-in-from-right duration-300">
+          {/* Detailed Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 dark:border-gray-700 pb-6">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setSelectedWarehouseId(null)}
+                className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-colors bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-300"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <div>
+                <div className="flex items-center gap-3">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{warehouse?.name}</h2>
+                    <span className="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold uppercase tracking-wide">Operational</span>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
+                    <span className="flex items-center gap-1"><MapPin size={14}/> {warehouse?.id}</span>
+                    <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                    <span className="flex items-center gap-1"><Thermometer size={14}/> {warehouse?.temperature}°C</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+                 <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50">
+                    <ClipboardCheck size={16} /> Audit
+                 </button>
+                 <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors">
+                    <Settings size={16} /> Manage
+                 </button>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
-            <h3 className="text-lg font-semibold mb-4 text-slate-800 dark:text-white">Product List</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="text-xs uppercase text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
-                  <tr>
-                    <th className="px-4 py-3">Product Name</th>
-                    <th className="px-4 py-3">SKU</th>
-                    <th className="px-4 py-3">Location</th>
-                    <th className="px-4 py-3">Stock</th>
-                    <th className="px-4 py-3 text-right">Value</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                  {warehouseProducts.map(p => (
-                    <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{p.name}</td>
-                      <td className="px-4 py-3 text-slate-500 text-sm">{p.sku}</td>
-                      <td className="px-4 py-3 text-slate-500 text-sm">
-                        <span className="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 px-2 py-1 rounded text-xs font-bold">
-                          {p.location}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                         <span className={`text-sm font-semibold ${p.stock < p.minStock ? 'text-red-500' : 'text-emerald-500'}`}>
-                           {p.stock}
-                         </span>
-                      </td>
-                      <td className="px-4 py-3 text-right text-slate-600 dark:text-slate-300">${(p.price * p.stock).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                  {warehouseProducts.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-slate-400">No products assigned to this warehouse.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left: Inventory List */}
+            <div className="lg:col-span-2 space-y-6">
+                {/* Stats Row */}
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-white dark:bg-[#1E293B] p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <p className="text-xs font-medium text-gray-500 uppercase">Total Items</p>
+                        <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">{warehouseProducts.length}</p>
+                    </div>
+                    <div className="bg-white dark:bg-[#1E293B] p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <p className="text-xs font-medium text-gray-500 uppercase">Asset Value</p>
+                        <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">${(totalValue/1000).toFixed(1)}k</p>
+                    </div>
+                    <div className="bg-white dark:bg-[#1E293B] p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                         <p className="text-xs font-medium text-gray-500 uppercase">Alerts</p>
+                         <p className="text-xl font-bold text-red-600 mt-1 flex items-center gap-2">
+                             {lowStockCount} <span className="text-xs font-normal text-gray-400">Low Stock</span>
+                         </p>
+                    </div>
+                </div>
+
+                <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden flex flex-col">
+                    <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
+                        <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Layers size={18} className="text-indigo-500"/> Current Inventory
+                        </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="text-xs font-semibold uppercase text-gray-500 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                        <tr>
+                            <th className="px-6 py-3">Product Name</th>
+                            <th className="px-6 py-3">Location</th>
+                            <th className="px-6 py-3 text-right">Stock</th>
+                            <th className="px-6 py-3 text-right">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {warehouseProducts.map(p => (
+                            <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <td className="px-6 py-3">
+                                <span className="font-medium text-gray-900 dark:text-white text-sm block">{p.name}</span>
+                                <span className="text-xs text-gray-500">{p.sku}</span>
+                            </td>
+                            <td className="px-6 py-3 text-gray-500 text-sm font-mono">{p.location}</td>
+                            <td className="px-6 py-3 text-right font-medium text-gray-900 dark:text-white">{p.stock}</td>
+                            <td className="px-6 py-3 text-right">
+                                <span className={`inline-block w-2 h-2 rounded-full ${p.stock < p.minStock ? 'bg-red-500' : 'bg-green-500'}`}></span>
+                            </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right: Floor Plan & Quick Actions */}
+            <div className="space-y-6">
+                 {/* Floor Plan Mockup */}
+                 <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden p-6">
+                     <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center justify-between">
+                         <span>Floor Plan Map</span>
+                         <span className="text-xs text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded">Live View</span>
+                     </h3>
+                     <div className="grid grid-cols-4 gap-2">
+                         {zones.map(zone => {
+                             // Randomly assign occupancy for visual effect
+                             const occupancy = Math.random(); 
+                             let color = 'bg-gray-100 dark:bg-gray-700';
+                             if (occupancy > 0.8) color = 'bg-red-100 dark:bg-red-900/40 border-red-200 dark:border-red-800';
+                             else if (occupancy > 0.4) color = 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-100 dark:border-indigo-800';
+                             else color = 'bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-800';
+
+                             return (
+                                 <div key={zone} className={`aspect-square rounded-lg border ${color} flex items-center justify-center relative group cursor-pointer hover:ring-2 hover:ring-indigo-500 transition-all`}>
+                                     <span className="text-xs font-bold text-gray-600 dark:text-gray-300">{zone}</span>
+                                     <div className="absolute inset-x-1 bottom-1 h-1 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                                         <div className="h-full bg-current opacity-50" style={{width: `${occupancy * 100}%`}}></div>
+                                     </div>
+                                 </div>
+                             );
+                         })}
+                     </div>
+                     <div className="mt-4 flex justify-between text-xs text-gray-500">
+                         <div className="flex items-center gap-1"><span className="w-2 h-2 bg-green-400 rounded-full"></span> &lt; 50%</div>
+                         <div className="flex items-center gap-1"><span className="w-2 h-2 bg-indigo-400 rounded-full"></span> 50-80%</div>
+                         <div className="flex items-center gap-1"><span className="w-2 h-2 bg-red-400 rounded-full"></span> &gt; 80%</div>
+                     </div>
+                 </div>
+
+                 <div className="bg-indigo-600 rounded-xl shadow-lg p-6 text-white">
+                     <h4 className="font-bold text-lg mb-2">Inbound Schedule</h4>
+                     <p className="text-indigo-100 text-sm mb-4">2 trucks arriving today at Bay 4 & 5.</p>
+                     <button className="w-full py-2 bg-white text-indigo-700 font-bold rounded-lg text-sm hover:bg-indigo-50 transition-colors">
+                         View Schedule
+                     </button>
+                 </div>
             </div>
           </div>
         </div>
@@ -138,58 +231,104 @@ const App: React.FC = () => {
     }
 
     return (
-      <div className="space-y-8">
-        <div>
-          <h2 className="text-3xl font-bold text-slate-800 dark:text-white">Warehouse Management</h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Monitor capacity and temperature across all hubs.</p>
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="flex justify-between items-end">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Global Logistics</h2>
+            <p className="text-gray-500 mt-2">Real-time capacity monitoring and hub management across {MOCK_WAREHOUSES.length} locations.</p>
+          </div>
+          <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium shadow-sm transition-colors">
+             <Truck size={18} /> New Shipment
+          </button>
         </div>
 
+        {/* New Analytics Component */}
         <WarehouseViz warehouses={MOCK_WAREHOUSES} />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MOCK_WAREHOUSES.map(wh => {
-              const productCount = products.filter(p => p.warehouseId === wh.id).length;
-              return (
-                <div 
-                  key={wh.id} 
-                  onClick={() => setSelectedWarehouseId(wh.id)}
-                  className="group cursor-pointer bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                >
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform">
-                      <MapPin size={24} />
-                    </div>
-                    <span className="text-xs font-semibold px-2 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">
-                      Active
-                    </span>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">{wh.name}</h3>
-                  <p className="text-sm text-slate-400 mb-6">{wh.id}</p>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
-                      <div className="flex items-center text-slate-500 dark:text-slate-400">
-                        <Thermometer size={16} className="mr-2" />
-                        Temp
-                      </div>
-                      <span className="font-semibold text-slate-800 dark:text-white">{wh.temperature}°C</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
-                      <div className="flex items-center text-slate-500 dark:text-slate-400">
-                        <Box size={16} className="mr-2" />
-                        Items
-                      </div>
-                      <span className="font-semibold text-slate-800 dark:text-white">{productCount} SKUs</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex items-center text-indigo-600 dark:text-indigo-400 text-sm font-semibold group-hover:translate-x-1 transition-transform">
-                    View Inventory <ChevronRight size={16} className="ml-1" />
-                  </div>
+        <div>
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Active Hubs</h3>
+                <div className="flex gap-2">
+                    <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                        <Layers size={20} />
+                    </button>
+                    <button className="p-2 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+                        <Box size={20} />
+                    </button>
                 </div>
-              );
-            })}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {MOCK_WAREHOUSES.map(wh => {
+                const productCount = products.filter(p => p.warehouseId === wh.id).length;
+                const utilization = Math.round((wh.used/wh.capacity)*100);
+                const isHighLoad = utilization > 80;
+
+                return (
+                    <div 
+                    key={wh.id} 
+                    onClick={() => setSelectedWarehouseId(wh.id)}
+                    className="group cursor-pointer bg-white dark:bg-[#1E293B] rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
+                    >
+                        {/* Status Stripe */}
+                        <div className={`absolute top-0 inset-x-0 h-1 ${isHighLoad ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+
+                        <div className="p-6">
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-inner">
+                                        <MapPin size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-lg text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{wh.name}</h3>
+                                        <p className="text-xs text-gray-500 font-mono flex items-center gap-1">
+                                            {wh.id} • <span className={isHighLoad ? "text-amber-500" : "text-emerald-500"}>{isHighLoad ? 'Heavy Load' : 'Optimal'}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="p-2 text-gray-300 group-hover:text-indigo-400 transition-colors">
+                                    <ChevronRight size={20} />
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="flex justify-between text-sm mb-2">
+                                        <span className="text-gray-500">Storage Usage</span>
+                                        <span className={`font-bold ${isHighLoad ? 'text-amber-600' : 'text-emerald-600'}`}>{utilization}%</span>
+                                    </div>
+                                    <div className="w-full bg-gray-100 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
+                                        <div 
+                                            className={`h-full rounded-full transition-all duration-1000 ${isHighLoad ? 'bg-amber-500' : 'bg-emerald-500'}`} 
+                                            style={{width: `${utilization}%`}}
+                                        ></div>
+                                    </div>
+                                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                        <span>{wh.used.toLocaleString()} units</span>
+                                        <span>{wh.capacity.toLocaleString()} max</span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 py-4 border-t border-gray-100 dark:border-gray-700 border-dashed">
+                                    <div className="flex items-center gap-2">
+                                        <Thermometer size={16} className="text-gray-400" />
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{wh.temperature}°C</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Box size={16} className="text-gray-400" />
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{productCount} Items</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                            <span className="text-xs font-medium text-gray-500">Last audit: 2 days ago</span>
+                            <span className="text-xs font-bold text-indigo-600 group-hover:underline">Manage Hub</span>
+                        </div>
+                    </div>
+                );
+                })}
+            </div>
         </div>
       </div>
     );
@@ -211,7 +350,7 @@ const App: React.FC = () => {
             products={products}
             onDelete={handleDeleteProduct}
             onEdit={handleEditProduct}
-            onAdd={handleAddProduct}
+            onAdd={handleAddProductClick}
             highlightedIds={highlightedProductIds}
           />
         );
@@ -219,62 +358,24 @@ const App: React.FC = () => {
         return renderWarehouseView();
       case ViewState.REPORTS:
         return (
-          <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
-            <div className="bg-slate-100 dark:bg-slate-800 p-10 rounded-full mb-6 animate-pulse">
-              <FileBarChart size={64} className="opacity-50" />
+          <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400">
+            <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+              <div className="text-indigo-200 dark:text-gray-600">
+                  <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+              </div>
             </div>
-            <h2 className="text-2xl font-bold text-slate-700 dark:text-slate-300">Reports Module</h2>
-            <p className="mt-2">Advanced analytics and reporting features are under development.</p>
+            <h2 className="text-xl font-bold text-gray-700 dark:text-gray-300">Reports Module</h2>
+            <p className="mt-2 text-sm">Advanced reporting capabilities coming soon.</p>
           </div>
         );
       case ViewState.SETTINGS:
         return (
-          <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 rounded-3xl shadow-sm p-10 border border-slate-100 dark:border-slate-700">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-8">System Settings</h2>
-            <div className="space-y-8">
-              <div className="flex items-center justify-between pb-8 border-b border-slate-100 dark:border-slate-700">
-                <div>
-                  <h3 className="font-semibold text-slate-900 dark:text-white text-lg">Appearance</h3>
-                  <p className="text-slate-500 mt-1">Customize how NexStock looks on your device.</p>
-                </div>
-                <div className="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-full">
-                  <button 
-                    onClick={() => !isDark && toggleTheme()}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${!isDark ? 'text-slate-500' : 'bg-white shadow-sm text-slate-800'}`}
-                  >
-                    Light
-                  </button>
-                  <button 
-                    onClick={() => isDark && toggleTheme()}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${isDark ? 'text-slate-500' : 'bg-slate-700 shadow-sm text-white'}`}
-                  >
-                    Dark
-                  </button>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between pb-8 border-b border-slate-100 dark:border-slate-700">
-                <div>
-                  <h3 className="font-semibold text-slate-900 dark:text-white text-lg">Notifications</h3>
-                  <p className="text-slate-500 mt-1">Get alerts for low stock and new orders.</p>
-                </div>
-                 <button className="w-14 h-8 bg-indigo-600 rounded-full relative transition-colors">
-                    <span className="absolute right-1 top-1 w-6 h-6 bg-white rounded-full shadow-sm transition-transform"></span>
-                 </button>
-              </div>
-
-               <div className="pt-2">
-                 <h3 className="font-semibold text-slate-900 dark:text-white text-lg mb-3">API Configuration</h3>
-                 <p className="text-slate-500 mb-4">Manage your integrations and keys.</p>
-                 <div className="p-5 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700">
-                   <div className="flex items-center justify-between">
-                      <span className="text-sm font-mono text-slate-600 dark:text-slate-400">API Key Status</span>
-                      <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded">Active</span>
-                   </div>
-                 </div>
-               </div>
-            </div>
-          </div>
+          <SettingsView 
+            isDark={isDark} 
+            toggleTheme={toggleTheme} 
+          />
         );
       default:
         return null;
@@ -285,11 +386,16 @@ const App: React.FC = () => {
     <Layout 
       activeView={activeView} 
       onNavigate={setActiveView} 
-      toggleTheme={toggleTheme}
+      toggleTheme={toggleTheme} 
       isDark={isDark}
     >
       {renderContent()}
       <AIAssistant products={products} onFilterApply={handleAIFilter} />
+      <AddProductModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+        onSave={handleSaveProduct} 
+      />
     </Layout>
   );
 };
