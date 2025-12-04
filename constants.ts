@@ -1,16 +1,16 @@
 import { Product, SaleData, CategoryData, Warehouse } from './types';
 
 export const MOCK_PRODUCTS: Product[] = [
-  { id: '1', name: 'Wireless Headphones', category: 'Electronics', sku: 'WH-001', price: 129.99, stock: 45, minStock: 20, supplier: 'TechSply', location: 'A-12' },
-  { id: '2', name: 'Ergonomic Chair', category: 'Furniture', sku: 'EC-500', price: 249.50, stock: 12, minStock: 15, supplier: 'OfficeLux', location: 'W-03' },
-  { id: '3', name: 'Mechanical Keyboard', category: 'Electronics', sku: 'MK-101', price: 89.99, stock: 110, minStock: 30, supplier: 'KeyMaster', location: 'A-15' },
-  { id: '4', name: '4K Monitor 27"', category: 'Electronics', sku: 'MN-4K27', price: 399.00, stock: 8, minStock: 10, supplier: 'VisionInc', location: 'A-02' },
-  { id: '5', name: 'Standing Desk', category: 'Furniture', sku: 'SD-200', price: 450.00, stock: 5, minStock: 5, supplier: 'OfficeLux', location: 'W-01' },
-  { id: '6', name: 'USB-C Dock', category: 'Accessories', sku: 'USB-D1', price: 75.00, stock: 85, minStock: 25, supplier: 'ConnectAll', location: 'B-09' },
-  { id: '7', name: 'Webcam 1080p', category: 'Electronics', sku: 'WC-1080', price: 59.99, stock: 32, minStock: 15, supplier: 'VisionInc', location: 'A-08' },
-  { id: '8', name: 'Laptop Stand', category: 'Accessories', sku: 'LS-ALU', price: 29.99, stock: 200, minStock: 50, supplier: 'AluWorks', location: 'B-02' },
-  { id: '9', name: 'Noise Cancelling Mic', category: 'Electronics', sku: 'NC-MIC', price: 110.00, stock: 18, minStock: 20, supplier: 'SoundPro', location: 'A-22' },
-  { id: '10', name: 'Smart Light Strip', category: 'Home', sku: 'SL-RGB', price: 35.00, stock: 150, minStock: 40, supplier: 'Lumina', location: 'C-05' },
+  { id: '1', name: 'Wireless Headphones', category: 'Electronics', sku: 'WH-001', price: 129.99, stock: 45, minStock: 20, supplier: 'TechSply', location: 'A-12', warehouseId: 'WH-NY' },
+  { id: '2', name: 'Ergonomic Chair', category: 'Furniture', sku: 'EC-500', price: 249.50, stock: 12, minStock: 15, supplier: 'OfficeLux', location: 'W-03', warehouseId: 'WH-CA' },
+  { id: '3', name: 'Mechanical Keyboard', category: 'Electronics', sku: 'MK-101', price: 89.99, stock: 110, minStock: 30, supplier: 'KeyMaster', location: 'A-15', warehouseId: 'WH-TX' },
+  { id: '4', name: '4K Monitor 27"', category: 'Electronics', sku: 'MN-4K27', price: 399.00, stock: 8, minStock: 10, supplier: 'VisionInc', location: 'A-02', warehouseId: 'WH-NY' },
+  { id: '5', name: 'Standing Desk', category: 'Furniture', sku: 'SD-200', price: 450.00, stock: 5, minStock: 5, supplier: 'OfficeLux', location: 'W-01', warehouseId: 'WH-CA' },
+  { id: '6', name: 'USB-C Dock', category: 'Accessories', sku: 'USB-D1', price: 75.00, stock: 85, minStock: 25, supplier: 'ConnectAll', location: 'B-09', warehouseId: 'WH-TX' },
+  { id: '7', name: 'Webcam 1080p', category: 'Electronics', sku: 'WC-1080', price: 59.99, stock: 32, minStock: 15, supplier: 'VisionInc', location: 'A-08', warehouseId: 'WH-NY' },
+  { id: '8', name: 'Laptop Stand', category: 'Accessories', sku: 'LS-ALU', price: 29.99, stock: 200, minStock: 50, supplier: 'AluWorks', location: 'B-02', warehouseId: 'WH-CA' },
+  { id: '9', name: 'Noise Cancelling Mic', category: 'Electronics', sku: 'NC-MIC', price: 110.00, stock: 18, minStock: 20, supplier: 'SoundPro', location: 'A-22', warehouseId: 'WH-TX' },
+  { id: '10', name: 'Smart Light Strip', category: 'Home', sku: 'SL-RGB', price: 35.00, stock: 150, minStock: 40, supplier: 'Lumina', location: 'C-05', warehouseId: 'WH-NY' },
 ];
 
 export const MOCK_SALES_DATA: SaleData[] = [

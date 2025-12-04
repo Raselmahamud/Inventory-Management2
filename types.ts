@@ -8,6 +8,7 @@ export interface Product {
   minStock: number;
   supplier: string;
   location: string;
+  warehouseId: string; // Linked to Warehouse ID
   lastSold?: string;
 }
 
