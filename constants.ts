@@ -1,4 +1,4 @@
-import { Product, SaleData, CategoryData, Warehouse } from './types';
+import { Product, SaleData, CategoryData, Warehouse, Staff, Supplier, Shipment } from './types';
 
 export const MOCK_PRODUCTS: Product[] = [
   { id: '1', name: 'Wireless Headphones', category: 'Electronics', sku: 'WH-001', price: 129.99, stock: 45, minStock: 20, supplier: 'TechSply', location: 'A-12', warehouseId: 'WH-NY' },
@@ -34,6 +34,55 @@ export const MOCK_WAREHOUSES: Warehouse[] = [
   { id: 'WH-NY', name: 'New York Central', capacity: 5000, used: 3200, temperature: 22 },
   { id: 'WH-CA', name: 'California West', capacity: 8000, used: 7100, temperature: 24 },
   { id: 'WH-TX', name: 'Texas Hub', capacity: 6000, used: 2500, temperature: 26 },
+];
+
+export const MOCK_STAFF: Staff[] = [
+    { 
+      id: '1', name: 'Alex Johnson', role: 'Warehouse Manager', email: 'alex.j@nexstock.ai', phone: '+1 (555) 010-1234', 
+      status: 'Active', department: 'Operations', joinDate: '2022-03-15',
+      salary: 85000, currency: 'USD', shift: '08:00 AM - 04:00 PM', 
+      leaveBalance: { sick: 5, casual: 3, paid: 12 }, performanceRating: 4.8, attendance: 98
+    },
+    { 
+      id: '2', name: 'Maria Garcia', role: 'Logistics Coordinator', email: 'maria.g@nexstock.ai', phone: '+1 (555) 010-5678', 
+      status: 'Active', department: 'Logistics', joinDate: '2023-01-10',
+      salary: 62000, currency: 'USD', shift: '09:00 AM - 05:00 PM',
+      leaveBalance: { sick: 2, casual: 6, paid: 8 }, performanceRating: 4.5, attendance: 95
+    },
+    { 
+      id: '3', name: 'James Wilson', role: 'Forklift Operator', email: 'james.w@nexstock.ai', phone: '+1 (555) 010-9012', 
+      status: 'On Leave', department: 'Operations', joinDate: '2023-06-22',
+      salary: 45000, currency: 'USD', shift: '04:00 PM - 12:00 AM',
+      leaveBalance: { sick: 0, casual: 1, paid: 15 }, performanceRating: 4.2, attendance: 92
+    },
+    { 
+      id: '4', name: 'Linda Chen', role: 'Inventory Specialist', email: 'linda.c@nexstock.ai', phone: '+1 (555) 010-3456', 
+      status: 'Active', department: 'Inventory', joinDate: '2022-11-05',
+      salary: 58000, currency: 'USD', shift: '09:00 AM - 05:00 PM',
+      leaveBalance: { sick: 8, casual: 4, paid: 10 }, performanceRating: 4.9, attendance: 99
+    },
+    { 
+      id: '5', name: 'Robert Taylor', role: 'Dispatcher', email: 'robert.t@nexstock.ai', phone: '+1 (555) 010-7890', 
+      status: 'Inactive', department: 'Logistics', joinDate: '2021-08-30',
+      salary: 52000, currency: 'USD', shift: '07:00 AM - 03:00 PM',
+      leaveBalance: { sick: 0, casual: 0, paid: 0 }, performanceRating: 3.5, attendance: 85
+    },
+];
+
+export const MOCK_SUPPLIERS: Supplier[] = [
+  { id: '1', name: 'TechSply Global', contactPerson: 'David Miller', email: 'orders@techsply.com', phone: '+1 (555) 123-4567', category: 'Electronics', rating: 4.8, status: 'Active', lastOrderDate: '2024-10-15', location: 'Shenzhen, CN', joinDate: '2023-01-15' },
+  { id: '2', name: 'OfficeLux Inc', contactPerson: 'Sarah Jenkins', email: 'sales@officelux.com', phone: '+1 (555) 987-6543', category: 'Furniture', rating: 4.5, status: 'Active', lastOrderDate: '2024-09-28', location: 'Chicago, USA', joinDate: '2023-03-10' },
+  { id: '3', name: 'KeyMaster Peripherals', contactPerson: 'Mike Chen', email: 'm.chen@keymaster.io', phone: '+1 (555) 456-7890', category: 'Electronics', rating: 4.2, status: 'Active', lastOrderDate: '2024-10-02', location: 'Taipei, TW', joinDate: '2023-06-20' },
+  { id: '4', name: 'Vision Displays', contactPerson: 'Emily White', email: 'support@visioninc.com', phone: '+1 (555) 789-0123', category: 'Electronics', rating: 3.9, status: 'Pending', lastOrderDate: '2024-08-15', location: 'Seoul, KR', joinDate: '2024-10-01' },
+  { id: '5', name: 'ConnectAll Cables', contactPerson: 'Tom Wilson', email: 'tom@connectall.com', phone: '+1 (555) 321-6547', category: 'Accessories', rating: 4.9, status: 'Active', lastOrderDate: '2024-10-20', location: 'Berlin, DE', joinDate: '2022-11-05' },
+];
+
+export const MOCK_SHIPMENTS: Shipment[] = [
+  { id: '1', trackingId: 'TRK-882910', type: 'Inbound', status: 'In Transit', origin: 'Shenzhen, CN', destination: 'WH-NY', carrier: 'DHL Express', estimatedDelivery: '2024-10-25', itemsCount: 500, value: 12500, progress: 65 },
+  { id: '2', trackingId: 'TRK-992102', type: 'Outbound', status: 'Delivered', origin: 'WH-CA', destination: 'Seattle, WA', carrier: 'FedEx Ground', estimatedDelivery: '2024-10-21', itemsCount: 45, value: 3200, progress: 100 },
+  { id: '3', trackingId: 'TRK-772819', type: 'Inbound', status: 'Customs', origin: 'Taipei, TW', destination: 'WH-TX', carrier: 'Maersk', estimatedDelivery: '2024-10-30', itemsCount: 1200, value: 45000, progress: 40 },
+  { id: '4', trackingId: 'TRK-112003', type: 'Outbound', status: 'Pending', origin: 'WH-NY', destination: 'Boston, MA', carrier: 'UPS', estimatedDelivery: '2024-10-23', itemsCount: 12, value: 850, progress: 0 },
+  { id: '5', trackingId: 'TRK-332918', type: 'Inbound', status: 'Delayed', origin: 'Seoul, KR', destination: 'WH-CA', carrier: 'Hapag-Lloyd', estimatedDelivery: '2024-11-05', itemsCount: 200, value: 54000, progress: 25 },
 ];
 
 export const SYSTEM_INSTRUCTION = `

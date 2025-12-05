@@ -6,6 +6,9 @@ import WarehouseViz from './components/WarehouseViz';
 import AIAssistant from './components/AIAssistant';
 import AddProductModal from './components/AddProductModal';
 import SettingsView from './components/SettingsView';
+import StaffManagement from './components/StaffManagement';
+import SupplierManagement from './components/SupplierManagement';
+import ShipmentTracker from './components/ShipmentTracker';
 import { ViewState, Product } from './types';
 import { MOCK_PRODUCTS, MOCK_SALES_DATA, MOCK_CATEGORY_DATA, MOCK_WAREHOUSES } from './constants';
 import { 
@@ -356,6 +359,12 @@ const App: React.FC = () => {
         );
       case ViewState.WAREHOUSE:
         return renderWarehouseView();
+      case ViewState.SUPPLIERS:
+        return <SupplierManagement />;
+      case ViewState.SHIPMENTS:
+        return <ShipmentTracker />;
+      case ViewState.STAFF:
+        return <StaffManagement />;
       case ViewState.REPORTS:
         return (
           <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400">

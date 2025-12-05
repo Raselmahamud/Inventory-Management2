@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, Package, Warehouse, FileBarChart, Settings, 
-  Menu, Bell, Moon, Sun, User, LogOut, Search, ChevronRight, Command
+  Menu, Bell, Moon, Sun, User, LogOut, Search, ChevronRight, Command, Users,
+  Truck, Briefcase
 } from 'lucide-react';
 import { ViewState } from '../types';
 
@@ -20,6 +21,9 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onNavigate, toggl
     { id: ViewState.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
     { id: ViewState.INVENTORY, label: 'Inventory', icon: Package },
     { id: ViewState.WAREHOUSE, label: 'Warehouses', icon: Warehouse },
+    { id: ViewState.SHIPMENTS, label: 'Shipments', icon: Truck },
+    { id: ViewState.SUPPLIERS, label: 'Suppliers', icon: Briefcase },
+    { id: ViewState.STAFF, label: 'Staff', icon: Users },
     { id: ViewState.REPORTS, label: 'Reports', icon: FileBarChart },
     { id: ViewState.SETTINGS, label: 'Settings', icon: Settings },
   ];
