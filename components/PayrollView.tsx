@@ -8,11 +8,16 @@ import {
 } from 'recharts';
 import { PayrollRecord } from '../types';
 import { MOCK_PAYROLL_RECORDS } from '../constants';
+import PaymentModal from './PaymentModal';
 
 const PayrollView: React.FC = () => {
   const [payrollRecords, setPayrollRecords] = useState<PayrollRecord[]>(MOCK_PAYROLL_RECORDS);
   const [selectedMonth, setSelectedMonth] = useState('October 2024');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Payment Modal State
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedPaymentRecord, setSelectedPaymentRecord] = useState<PayrollRecord | null>(null);
 
   // Filter records
   const filteredRecords = useMemo(() => {
@@ -39,23 +44,25 @@ const PayrollView: React.FC = () => {
     { month: 'Oct', amount: totalPayroll }, // Current
   ];
 
-  const handleStatusChange = (id: string, newStatus: PayrollRecord['status']) => {
+  const handleOpenPayment = (record: PayrollRecord) => {
+      setSelectedPaymentRecord(record);
+      setIsPaymentModalOpen(true);
+  };
+
+  const handleConfirmPayment = (recordId: string, paymentDetails: any) => {
+    // In a real app, you would save paymentDetails (method, reference) to the backend
+    console.log('Processing payment:', paymentDetails);
+    
     setPayrollRecords(prev => prev.map(record => {
-      if (record.id === id) {
+      if (record.id === recordId) {
         return { 
           ...record, 
-          status: newStatus,
-          paymentDate: newStatus === 'Paid' ? new Date().toISOString().split('T')[0] : undefined
+          status: 'Paid',
+          paymentDate: new Date().toISOString().split('T')[0]
         };
       }
       return record;
     }));
-  };
-
-  const handleProcessPayment = (id: string) => {
-      if (confirm('Process payment for this employee?')) {
-          handleStatusChange(id, 'Paid');
-      }
   };
 
   const StatCard = ({ title, value, subValue, icon: Icon, colorClass }: any) => (
@@ -203,15 +210,15 @@ const PayrollView: React.FC = () => {
                                           <td className="px-6 py-4 text-right">
                                               {record.status === 'Pending' ? (
                                                   <button 
-                                                      onClick={() => handleProcessPayment(record.id)}
-                                                      className="text-indigo-600 hover:text-indigo-700 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1.5 rounded-lg transition-colors"
+                                                      onClick={() => handleOpenPayment(record)}
+                                                      className="text-indigo-600 hover:text-indigo-700 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1.5 rounded-lg transition-colors hover:shadow-sm"
                                                   >
                                                       Pay Now
                                                   </button>
                                               ) : (
                                                   <div className="flex items-center justify-end gap-2">
                                                       <span className="text-xs text-gray-400">{record.paymentDate}</span>
-                                                      <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                                      <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" title="Download Slip">
                                                           <Download size={16} />
                                                       </button>
                                                   </div>
@@ -275,6 +282,13 @@ const PayrollView: React.FC = () => {
               </div>
           </div>
       </div>
+
+      <PaymentModal 
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onConfirm={handleConfirmPayment}
+        record={selectedPaymentRecord}
+      />
     </div>
   );
 };
