@@ -9,6 +9,8 @@ import SettingsView from './components/SettingsView';
 import StaffManagement from './components/StaffManagement';
 import SupplierManagement from './components/SupplierManagement';
 import ShipmentTracker from './components/ShipmentTracker';
+import AdminProfile from './components/AdminProfile';
+import ReportsView from './components/ReportsView';
 import { ViewState, Product } from './types';
 import { MOCK_PRODUCTS, MOCK_SALES_DATA, MOCK_CATEGORY_DATA, MOCK_WAREHOUSES } from './constants';
 import { 
@@ -367,17 +369,11 @@ const App: React.FC = () => {
         return <StaffManagement />;
       case ViewState.REPORTS:
         return (
-          <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
-              <div className="text-indigo-200 dark:text-gray-600">
-                  <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-              </div>
-            </div>
-            <h2 className="text-xl font-bold text-gray-700 dark:text-gray-300">Reports Module</h2>
-            <p className="mt-2 text-sm">Advanced reporting capabilities coming soon.</p>
-          </div>
+          <ReportsView 
+            salesData={MOCK_SALES_DATA}
+            categoryData={MOCK_CATEGORY_DATA}
+            products={products}
+          />
         );
       case ViewState.SETTINGS:
         return (
@@ -386,6 +382,8 @@ const App: React.FC = () => {
             toggleTheme={toggleTheme} 
           />
         );
+      case ViewState.PROFILE:
+        return <AdminProfile />;
       default:
         return null;
     }

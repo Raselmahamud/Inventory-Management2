@@ -1,4 +1,4 @@
-import { Product, SaleData, CategoryData, Warehouse, Staff, Supplier, Shipment } from './types';
+import { Product, SaleData, CategoryData, Warehouse, Staff, Supplier, Shipment, Task } from './types';
 
 export const MOCK_PRODUCTS: Product[] = [
   { id: '1', name: 'Wireless Headphones', category: 'Electronics', sku: 'WH-001', price: 129.99, stock: 45, minStock: 20, supplier: 'TechSply', location: 'A-12', warehouseId: 'WH-NY' },
@@ -67,6 +67,65 @@ export const MOCK_STAFF: Staff[] = [
       salary: 52000, currency: 'USD', shift: '07:00 AM - 03:00 PM',
       leaveBalance: { sick: 0, casual: 0, paid: 0 }, performanceRating: 3.5, attendance: 85
     },
+];
+
+export const MOCK_TASKS: Task[] = [
+  { 
+    id: '101', 
+    title: 'Conduct Q3 Inventory Audit', 
+    description: 'Full count of Zone A and B in NY Warehouse.', 
+    assigneeId: '1', 
+    status: 'In Progress', 
+    priority: 'High', 
+    startDate: '2024-10-20', 
+    dueDate: '2024-10-25',
+    history: [
+      { id: 'h1', action: 'Task created', timestamp: '2024-10-20T09:00:00Z', user: 'Admin' },
+      { id: 'h2', action: 'Status changed to In Progress', timestamp: '2024-10-21T10:30:00Z', user: 'Alex Johnson' }
+    ]
+  },
+  { 
+    id: '102', 
+    title: 'Update Supplier Contracts', 
+    description: 'Review and renew contracts for TechSply.', 
+    assigneeId: '2', 
+    status: 'Pending', 
+    priority: 'Medium', 
+    startDate: '2024-10-26', 
+    dueDate: '2024-10-30',
+    history: [
+      { id: 'h3', action: 'Task created', timestamp: '2024-10-24T14:15:00Z', user: 'Admin' }
+    ]
+  },
+  { 
+    id: '103', 
+    title: 'Forklift Maintenance', 
+    description: 'Monthly checkup for FL-03.', 
+    assigneeId: '3', 
+    status: 'Completed', 
+    priority: 'High', 
+    startDate: '2024-10-15', 
+    dueDate: '2024-10-16', 
+    completedDate: '2024-10-16',
+    history: [
+      { id: 'h4', action: 'Task created', timestamp: '2024-10-15T08:00:00Z', user: 'System' },
+      { id: 'h5', action: 'Status changed to Completed', timestamp: '2024-10-16T16:45:00Z', user: 'James Wilson' }
+    ]
+  },
+  { 
+    id: '104', 
+    title: 'Reorganize Bin C-05', 
+    description: 'Move low moving stock to higher shelves.', 
+    assigneeId: '4', 
+    status: 'In Progress', 
+    priority: 'Low', 
+    startDate: '2024-10-21', 
+    dueDate: '2024-10-24',
+    history: [
+      { id: 'h6', action: 'Task created', timestamp: '2024-10-21T11:00:00Z', user: 'Admin' },
+      { id: 'h7', action: 'Status changed to In Progress', timestamp: '2024-10-22T09:30:00Z', user: 'Linda Chen' }
+    ]
+  },
 ];
 
 export const MOCK_SUPPLIERS: Supplier[] = [

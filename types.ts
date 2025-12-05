@@ -56,6 +56,26 @@ export interface Staff {
   attendance: number; // Percentage
 }
 
+export interface TaskHistory {
+  id: string;
+  action: string;
+  timestamp: string;
+  user: string;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  assigneeId: string; // Links to Staff ID
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Review';
+  priority: 'High' | 'Medium' | 'Low';
+  startDate: string;
+  dueDate: string;
+  completedDate?: string;
+  history?: TaskHistory[];
+}
+
 export interface Supplier {
   id: string;
   name: string;
@@ -84,6 +104,15 @@ export interface Shipment {
   progress: number; // 0-100
 }
 
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  type: 'info' | 'warning' | 'success' | 'error';
+}
+
 export enum ViewState {
   DASHBOARD = 'DASHBOARD',
   INVENTORY = 'INVENTORY',
@@ -93,6 +122,7 @@ export enum ViewState {
   STAFF = 'STAFF',
   REPORTS = 'REPORTS',
   SETTINGS = 'SETTINGS',
+  PROFILE = 'PROFILE',
 }
 
 export interface AIResponse {

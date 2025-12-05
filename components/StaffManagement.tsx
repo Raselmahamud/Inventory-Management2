@@ -1,20 +1,33 @@
 import React, { useState } from 'react';
-import { Staff } from '../types';
+import { Staff, Task, TaskHistory } from '../types';
 import { 
   Search, Plus, Edit2, Trash2, Mail, Phone, Calendar, User, 
-  Filter, LayoutGrid, List, Eye, Users, UserCheck, UserX, UserPlus, X 
+  Filter, LayoutGrid, List, Eye, Users, UserCheck, UserX, UserPlus, X,
+  ClipboardList
 } from 'lucide-react';
 import StaffModal from './StaffModal';
 import StaffDetailsView from './StaffDetailsView';
-import { MOCK_STAFF } from '../constants';
+import StaffTaskBoard from './StaffTaskBoard';
+import TaskModal from './TaskModal';
+import TaskDetailsView from './TaskDetailsView';
+import { MOCK_STAFF, MOCK_TASKS } from '../constants';
 
 const StaffManagement: React.FC = () => {
   const [staffList, setStaffList] = useState<Staff[]>(MOCK_STAFF);
+  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  
+  // View Modes
+  const [viewMode, setViewMode] = useState<'grid' | 'table' | 'tasks'>('grid');
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  // Task Modal State
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Filter State
   const [showFilters, setShowFilters] = useState(false);
@@ -34,8 +47,13 @@ const StaffManagement: React.FC = () => {
   }).length;
 
   const handleAdd = () => {
-    setEditingStaff(null);
-    setIsModalOpen(true);
+    if (viewMode === 'tasks') {
+        setEditingTask(null);
+        setIsTaskModalOpen(true);
+    } else {
+        setEditingStaff(null);
+        setIsModalOpen(true);
+    }
   };
 
   const handleEdit = (staff: Staff, e: React.MouseEvent) => {
@@ -68,6 +86,105 @@ const StaffManagement: React.FC = () => {
     }
   };
 
+  // Task Handlers
+  const handleSaveTask = (taskData: Omit<Task, 'id'> | Task) => {
+      const timestamp = new Date().toISOString();
+      const currentUser = 'Admin'; // Mock user
+
+      if ('id' in taskData) {
+          setTasks(prev => prev.map(t => {
+              if (t.id === taskData.id) {
+                  const history = t.history || [];
+                  const newEntries: TaskHistory[] = [];
+
+                  // Check for assignee change
+                  if (t.assigneeId !== taskData.assigneeId) {
+                       const oldName = staffList.find(s => s.id === t.assigneeId)?.name || 'Unknown';
+                       const newName = staffList.find(s => s.id === taskData.assigneeId)?.name || 'Unknown';
+                       newEntries.push({
+                           id: Math.random().toString(36).substr(2, 9),
+                           action: `Reassigned from ${oldName} to ${newName}`,
+                           timestamp,
+                           user: currentUser
+                       });
+                  }
+                  
+                  // Check status change
+                  if (t.status !== taskData.status) {
+                        newEntries.push({
+                           id: Math.random().toString(36).substr(2, 9),
+                           action: `Status updated to ${taskData.status}`,
+                           timestamp,
+                           user: currentUser
+                       });
+                  }
+
+                  const updatedTask = { 
+                      ...taskData, 
+                      history: [...history, ...newEntries] 
+                  } as Task;
+                  
+                  // If currently viewing this task, update the view as well
+                  if (selectedTask?.id === t.id) {
+                      setSelectedTask(updatedTask);
+                  }
+                  
+                  return updatedTask;
+              }
+              return t;
+          }));
+      } else {
+          const newTask: Task = {
+              ...taskData,
+              id: Math.random().toString(36).substr(2, 9),
+              completedDate: taskData.status === 'Completed' ? new Date().toISOString() : undefined,
+              history: [{
+                  id: Math.random().toString(36).substr(2, 9),
+                  action: 'Task created',
+                  timestamp,
+                  user: currentUser
+              }]
+          } as Task;
+          setTasks(prev => [newTask, ...prev]);
+      }
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+      if (confirm('Delete this task?')) {
+          setTasks(prev => prev.filter(t => t.id !== taskId));
+          if (selectedTask?.id === taskId) setSelectedTask(null);
+      }
+  };
+
+  const handleStatusChange = (taskId: string, newStatus: Task['status']) => {
+      setTasks(prev => prev.map(t => {
+          if (t.id === taskId) {
+              const history = t.history || [];
+              const updatedTask = { 
+                  ...t, 
+                  status: newStatus,
+                  completedDate: newStatus === 'Completed' ? new Date().toISOString() : undefined,
+                  history: [
+                      ...history,
+                      {
+                          id: Math.random().toString(36).substr(2, 9),
+                          action: `Status changed to ${newStatus}`,
+                          timestamp: new Date().toISOString(),
+                          user: 'Admin'
+                      }
+                  ]
+              };
+              
+              if (selectedTask?.id === t.id) {
+                  setSelectedTask(updatedTask);
+              }
+
+              return updatedTask;
+          }
+          return t;
+      }));
+  };
+
   // Filter Logic
   const filteredStaff = staffList.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -82,7 +199,18 @@ const StaffManagement: React.FC = () => {
 
   const uniqueDepartments = Array.from(new Set(staffList.map(s => s.department)));
 
-  // If a staff member is selected, show details view
+  // View Routing
+  if (selectedTask) {
+      return (
+        <TaskDetailsView 
+            task={selectedTask}
+            staffList={staffList}
+            onBack={() => setSelectedTask(null)}
+            onStatusChange={(status) => handleStatusChange(selectedTask.id, status)}
+        />
+      );
+  }
+
   if (selectedStaff) {
       return <StaffDetailsView staff={selectedStaff} onBack={() => setSelectedStaff(null)} />;
   }
@@ -106,13 +234,13 @@ const StaffManagement: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Staff Management</h2>
-           <p className="text-sm text-gray-500 mt-1">Manage employees, roles, and permissions.</p>
+           <p className="text-sm text-gray-500 mt-1">Manage employees, roles, tasks, and permissions.</p>
         </div>
         <button 
             onClick={handleAdd}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
         >
-            <Plus size={16} /> Add Staff
+            <Plus size={16} /> {viewMode === 'tasks' ? 'Assign Task' : 'Add Staff'}
         </button>
       </div>
 
@@ -132,17 +260,18 @@ const StaffManagement: React.FC = () => {
             subText={`${Math.round((activeStaff/totalStaff)*100 || 0)}% Workforce`}
           />
            <StatCard 
-            title="New Joiners" 
-            value={newJoiners} 
-            icon={UserPlus} 
+            title="Active Tasks" 
+            value={tasks.filter(t => t.status === 'In Progress').length} 
+            icon={ClipboardList} 
             colorClass="bg-blue-500 text-blue-600" 
-            subText="This Month"
+            subText="In Progress"
           />
           <StatCard 
-            title="Inactive / Left" 
-            value={inactiveStaff} 
+            title="Completed Tasks" 
+            value={tasks.filter(t => t.status === 'Completed').length} 
             icon={UserX} 
             colorClass="bg-gray-500 text-gray-600" 
+            subText="This Week"
           />
       </div>
 
@@ -153,7 +282,7 @@ const StaffManagement: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <input 
                 type="text" 
-                placeholder="Search staff by name, role, or email..." 
+                placeholder={viewMode === 'tasks' ? "Search tasks..." : "Search staff by name, role, or email..."}
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -164,31 +293,42 @@ const StaffManagement: React.FC = () => {
                     <button 
                         onClick={() => setViewMode('grid')}
                         className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                        title="Grid View"
                     >
                         <LayoutGrid size={18} />
                     </button>
                     <button 
                         onClick={() => setViewMode('table')}
                         className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                        title="List View"
                     >
                         <List size={18} />
                     </button>
+                    <button 
+                        onClick={() => setViewMode('tasks')}
+                        className={`p-1.5 rounded-md transition-all ${viewMode === 'tasks' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                        title="Task Board"
+                    >
+                        <ClipboardList size={18} />
+                    </button>
                 </div>
-                <button 
-                    onClick={() => setShowFilters(!showFilters)}
-                    className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg text-sm font-medium transition-colors ${
-                        showFilters 
-                        ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/20 dark:border-indigo-800 dark:text-indigo-300' 
-                        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50'
-                    }`}
-                >
-                    <Filter size={18} /> Filter
-                </button>
+                {viewMode !== 'tasks' && (
+                    <button 
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg text-sm font-medium transition-colors ${
+                            showFilters 
+                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/20 dark:border-indigo-800 dark:text-indigo-300' 
+                            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50'
+                        }`}
+                    >
+                        <Filter size={18} /> Filter
+                    </button>
+                )}
             </div>
         </div>
 
-        {/* Filter Panel */}
-        {showFilters && (
+        {/* Filter Panel (Only for Staff Views) */}
+        {showFilters && viewMode !== 'tasks' && (
             <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-3 gap-4 animate-in slide-in-from-top-2">
                 <div>
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Department</label>
@@ -364,7 +504,25 @@ const StaffManagement: React.FC = () => {
          </div>
       )}
 
-      {filteredStaff.length === 0 && (
+      {/* Task Board View */}
+      {viewMode === 'tasks' && (
+          <div className="animate-in fade-in duration-300">
+              <StaffTaskBoard 
+                  tasks={tasks.filter(t => t.title.toLowerCase().includes(searchTerm.toLowerCase()))} 
+                  staffList={staffList}
+                  onEditTask={(task) => {
+                      setEditingTask(task);
+                      setIsTaskModalOpen(true);
+                  }}
+                  onViewTask={(task) => setSelectedTask(task)}
+                  onDeleteTask={handleDeleteTask}
+                  onStatusChange={handleStatusChange}
+              />
+          </div>
+      )}
+
+      {/* Fallback for empty states */}
+      {filteredStaff.length === 0 && viewMode !== 'tasks' && (
           <div className="text-center py-12">
              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
                 <User size={32} />
@@ -384,11 +542,21 @@ const StaffManagement: React.FC = () => {
           </div>
       )}
 
+      {/* Staff Modal */}
       <StaffModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onSave={handleSave} 
         initialData={editingStaff}
+      />
+
+      {/* Task Modal */}
+      <TaskModal 
+        isOpen={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        onSave={handleSaveTask}
+        staffList={staffList}
+        initialData={editingTask}
       />
     </div>
   );
