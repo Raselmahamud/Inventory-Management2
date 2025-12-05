@@ -1,4 +1,4 @@
-import { Product, SaleData, CategoryData, Warehouse, Staff, Supplier, Shipment, Task } from './types';
+import { Product, SaleData, CategoryData, Warehouse, Staff, Supplier, Shipment, Task, PayrollRecord } from './types';
 
 export const MOCK_PRODUCTS: Product[] = [
   { id: '1', name: 'Wireless Headphones', category: 'Electronics', sku: 'WH-001', price: 129.99, stock: 45, minStock: 20, supplier: 'TechSply', location: 'A-12', warehouseId: 'WH-NY' },
@@ -67,6 +67,15 @@ export const MOCK_STAFF: Staff[] = [
       salary: 52000, currency: 'USD', shift: '07:00 AM - 03:00 PM',
       leaveBalance: { sick: 0, casual: 0, paid: 0 }, performanceRating: 3.5, attendance: 85
     },
+];
+
+export const MOCK_PAYROLL_RECORDS: PayrollRecord[] = [
+  { id: 'PR-001', staffId: '1', staffName: 'Alex Johnson', department: 'Operations', role: 'Warehouse Manager', month: 'October 2024', baseSalary: 7083, bonus: 500, deductions: 200, netPay: 7383, status: 'Pending' },
+  { id: 'PR-002', staffId: '2', staffName: 'Maria Garcia', department: 'Logistics', role: 'Logistics Coordinator', month: 'October 2024', baseSalary: 5166, bonus: 200, deductions: 150, netPay: 5216, status: 'Pending' },
+  { id: 'PR-003', staffId: '3', staffName: 'James Wilson', department: 'Operations', role: 'Forklift Operator', month: 'October 2024', baseSalary: 3750, bonus: 0, deductions: 50, netPay: 3700, status: 'Paid', paymentDate: '2024-10-30' },
+  { id: 'PR-004', staffId: '4', staffName: 'Linda Chen', department: 'Inventory', role: 'Inventory Specialist', month: 'October 2024', baseSalary: 4833, bonus: 300, deductions: 100, netPay: 5033, status: 'Pending' },
+  { id: 'PR-005', staffId: '1', staffName: 'Alex Johnson', department: 'Operations', role: 'Warehouse Manager', month: 'September 2024', baseSalary: 7083, bonus: 0, deductions: 200, netPay: 6883, status: 'Paid', paymentDate: '2024-09-30' },
+  { id: 'PR-006', staffId: '2', staffName: 'Maria Garcia', department: 'Logistics', role: 'Logistics Coordinator', month: 'September 2024', baseSalary: 5166, bonus: 100, deductions: 150, netPay: 5116, status: 'Paid', paymentDate: '2024-09-30' },
 ];
 
 export const MOCK_TASKS: Task[] = [

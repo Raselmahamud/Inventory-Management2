@@ -76,6 +76,21 @@ export interface Task {
   history?: TaskHistory[];
 }
 
+export interface PayrollRecord {
+  id: string;
+  staffId: string;
+  staffName: string;
+  department: string;
+  role: string;
+  month: string; // e.g., "October 2024"
+  baseSalary: number;
+  bonus: number;
+  deductions: number;
+  netPay: number;
+  status: 'Paid' | 'Pending' | 'Processing';
+  paymentDate?: string;
+}
+
 export interface Supplier {
   id: string;
   name: string;
@@ -120,6 +135,7 @@ export enum ViewState {
   SUPPLIERS = 'SUPPLIERS',
   SHIPMENTS = 'SHIPMENTS',
   STAFF = 'STAFF',
+  PAYROLL = 'PAYROLL',
   REPORTS = 'REPORTS',
   SETTINGS = 'SETTINGS',
   PROFILE = 'PROFILE',

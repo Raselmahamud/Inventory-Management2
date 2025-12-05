@@ -11,6 +11,7 @@ import SupplierManagement from './components/SupplierManagement';
 import ShipmentTracker from './components/ShipmentTracker';
 import AdminProfile from './components/AdminProfile';
 import ReportsView from './components/ReportsView';
+import PayrollView from './components/PayrollView';
 import { ViewState, Product } from './types';
 import { MOCK_PRODUCTS, MOCK_SALES_DATA, MOCK_CATEGORY_DATA, MOCK_WAREHOUSES } from './constants';
 import { 
@@ -367,6 +368,8 @@ const App: React.FC = () => {
         return <ShipmentTracker />;
       case ViewState.STAFF:
         return <StaffManagement />;
+      case ViewState.PAYROLL:
+        return <PayrollView />;
       case ViewState.REPORTS:
         return (
           <ReportsView 

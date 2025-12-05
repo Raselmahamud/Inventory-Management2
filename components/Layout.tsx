@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   LayoutDashboard, Package, Warehouse, FileBarChart, Settings, 
   Menu, Bell, Moon, Sun, User, LogOut, Search, ChevronRight, Command, Users,
-  Truck, Briefcase, CheckCircle, AlertTriangle, Info, X
+  Truck, Briefcase, CheckCircle, AlertTriangle, Info, X, DollarSign
 } from 'lucide-react';
 import { ViewState, Notification } from '../types';
 
@@ -55,6 +55,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onNavigate, toggl
     { id: ViewState.SHIPMENTS, label: 'Shipments', icon: Truck },
     { id: ViewState.SUPPLIERS, label: 'Suppliers', icon: Briefcase },
     { id: ViewState.STAFF, label: 'Staff', icon: Users },
+    { id: ViewState.PAYROLL, label: 'Payroll', icon: DollarSign },
     { id: ViewState.REPORTS, label: 'Reports', icon: FileBarChart },
     { id: ViewState.SETTINGS, label: 'Settings', icon: Settings },
   ];
