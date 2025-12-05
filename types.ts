@@ -16,12 +16,14 @@ export interface SaleData {
   date: string;
   revenue: number;
   orders: number;
+  [key: string]: any;
 }
 
 export interface CategoryData {
   name: string;
   value: number;
   color: string;
+  [key: string]: any;
 }
 
 export interface Warehouse {
