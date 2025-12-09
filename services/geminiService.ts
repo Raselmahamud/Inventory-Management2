@@ -2,13 +2,26 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { SYSTEM_INSTRUCTION } from '../constants';
 import { Product } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy initialization to prevent crashes if env var is missing during initial load
+const getAIClient = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.warn("API_KEY is missing. Gemini features will not work.");
+    return null;
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export const getInventoryInsights = async (
   query: string,
   currentProducts: Product[]
 ): Promise<{ text: string; filter?: Partial<Product> }> => {
   
+  const ai = getAIClient();
+  if (!ai) {
+    return { text: "API Key is missing. Please configure your environment variables." };
+  }
+
   const productContext = JSON.stringify(currentProducts.map(p => ({
     name: p.name,
     category: p.category,
@@ -60,9 +73,6 @@ export const getInventoryInsights = async (
 
     const result = JSON.parse(response.text || '{}');
     
-    // Map stockStatus 'low' back to actual logic if needed by the caller, 
-    // but for now we just return the raw filter object.
-    
     return {
       text: result.answer || "I couldn't process that request.",
       filter: result.filterCriteria
@@ -75,6 +85,9 @@ export const getInventoryInsights = async (
 };
 
 export const getDemandForecast = async (productName: string): Promise<string> => {
+  const ai = getAIClient();
+  if (!ai) return "Forecast unavailable (API Key missing).";
+
   const prompt = `
     Product: ${productName}
     Historical Context: Sales have been steady with a 5% increase month-over-month.
